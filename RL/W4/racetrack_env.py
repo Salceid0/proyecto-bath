@@ -246,11 +246,53 @@ class RacetrackEnv(object) :
         """
         return [*self.ACTIONS_DICT]
 
-def plot_results(mc_rewards = None, sarsa_rewards = None, q_learning_rewards = None) :
+def plot_results(mc_rewards = None, sarsa_rewards = None, q_learning_rewards = None, totals = None):
 	num_episodes = 150
 	
 	plt.figure(figsize=(10.666, 6))
-	
+	if totals is not None:
+		with open("correct_returns_sarsa.json", "r") as f:
+			example_sarsa_rewards = json.load(f)
+		example_num_agents = len(example_sarsa_rewards)
+		example_sarsa_average_episode_rewards = []
+		for episode in range(0, num_episodes) :
+			reward = 0
+			for agent in range(0, example_num_agents) :
+				reward += example_sarsa_rewards[agent][episode]
+			example_sarsa_average_episode_rewards.append(reward / example_num_agents)
+		with open("correct_returns_q.json", "r") as f:
+			example_q_rewards = json.load(f)
+			
+		# Average Example Returns Lists
+		example_num_agents = len(example_q_rewards)
+		example_q_average_episode_rewards = []
+		for episode in range(0, num_episodes) :
+			reward = 0
+			for agent in range(0, example_num_agents) :
+				reward += example_q_rewards[agent][episode]
+			example_q_average_episode_rewards.append(reward / example_num_agents)
+			
+		plt.figure(figsize=(10.666, 6))	
+        plt.plot(range(num_episodes), example_sarsa_average_episode_rewards, label = "Example Sarsa Agent", c = plt.cm.tab20c(4), alpha = 0.75)
+        plt.plot(range(num_episodes), example_q_average_episode_rewards, label = "Example Q-Learning Agent", c = plt.cm.tab20c(4), alpha = 0.75)
+        plt.title("Racetrack Average Learning Curve\n{} Q-Learning Agents' Performance Averaged".format(num_agents))
+        plt.xlabel("Episodes of Training")
+        plt.ylabel("Average Undiscounted Return")
+        plt.legend()
+        plt.grid()
+        plt.show()
+        plt.figure(figsize=(10.666, 6))
+        plt.plot(range(num_episodes), example_sarsa_average_episode_rewards, label = "Example Sarsa Agent", c = plt.cm.tab20c(4), alpha = 0.75)
+        plt.plot(range(num_episodes), example_q_average_episode_rewards, label = "Example Q-Learning Agent", c = plt.cm.tab20c(4), alpha = 0.75)
+        plt.title("Racetrack Average Learning Curve (Cropped)")
+        plt.xlabel("Episodes Played")
+        plt.ylabel("Average Return")
+        plt.ylim((-500, 0))
+        plt.legend()
+        plt.grid()
+        plt.show()
+
+			
 	# MC Control
 	if (mc_rewards is not None):
 		
@@ -278,7 +320,7 @@ def plot_results(mc_rewards = None, sarsa_rewards = None, q_learning_rewards = N
 			example_mc_average_episode_rewards.append(reward / example_num_agents) 
 		
 		# Plot unsmoothed learning curve.
-		plt.plot(range(num_episodes), mc_average_episode_rewards, label = "MC Agent", c = plt.cm.tab20c(0))
+		plt.plot(range(num_episodes), example_q_average_episode_rewards, label = "Example Q-Learning Agent", c = plt.cm.tab20c(4), alpha = 0.75)
 		plt.plot(range(num_episodes), example_mc_average_episode_rewards, label = "Example MC Agent", c = plt.cm.tab20c(4), alpha = 0.75)
 		plt.title("Racetrack Average Learning Curve\n{} MC Control Agents' Performance Averaged".format(num_agents))
 		plt.xlabel("Episodes of Training")
